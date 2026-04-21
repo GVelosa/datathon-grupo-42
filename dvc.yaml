@@ -1,40 +1,64 @@
 stages:
-  - name: prepare
-    cmd: echo "Download dataset from Kaggle to data/raw/"
+  prepare:
+    cmd: >
+      echo "Baixe o dataset do Kaggle e salve em data/raw/creditcard.csv" &&
+      echo "Comando: kaggle datasets download -d mlg-ulb/creditcardfraud -p data/raw/ --unzip"
     deps:
       - data/raw/
     outs:
-      - data/raw/creditcard.csv
+      - data/raw/creditcard.csv:
+          cache: true
 
-  - name: featurize
-    cmd: python -c "from src.features.feature_engineering import load_raw, compute_features, upsert_feature_store; df = load_raw('data/raw/creditcard.csv'); features = compute_features(df); upsert_feature_store(features, 'data/processed/features.parquet')"
+  featurize:
+    cmd: >
+      python -c "
+      from src.features.feature_engineering import load_raw, compute_features, upsert_feature_store;
+      df = load_raw('data/raw/creditcard.csv');
+      features = compute_features(df);
+      n = upsert_feature_store(features, 'data/processed/features.parquet');
+      print(f'Upsert concluido: {n} registros')
+      "
     deps:
       - src/features/feature_engineering.py
       - data/raw/creditcard.csv
     outs:
-      - data/processed/features.parquet
+      - data/processed/features.parquet:
+          cache: true
     params:
       - configs/model_config.yaml:
-        - feature_engineering
+          - feature_engineering
 
-  - name: train
+  train:
     cmd: python src/models/train.py
     deps:
       - src/models/train.py
       - src/models/baseline.py
+      - src/features/feature_engineering.py
       - data/processed/features.parquet
+      - configs/model_config.yaml
     outs:
-      - data/processed/model_artifacts/
+      - data/processed/eval_metrics.json:
+          cache: false
     params:
       - configs/model_config.yaml:
-        - random_forest
-        - mlp
-        - training
+          - random_forest
+          - mlp
+          - training
 
-  - name: evaluate
-    cmd: python -c "print('Evaluation complete. Check MLflow for metrics.')"
+  evaluate:
+    cmd: >
+      python -c "
+      import json;
+      from pathlib import Path;
+      metrics = json.loads(Path('data/processed/eval_metrics.json').read_text());
+      best = metrics.get('best_auc_roc', 0);
+      gate = metrics.get('promotion_gate', 0.005);
+      print(f'Best AUC-ROC: {best:.4f}');
+      print(f'Gate de promocao: delta_AUC >= {gate}');
+      print('Status: PROMOVER' if best > 0.9 else 'Status: REVISAR')
+      "
     deps:
-      - data/processed/model_artifacts/
+      - data/processed/eval_metrics.json
     metrics:
       - data/processed/eval_metrics.json:
-        cache: false
+          cache: false

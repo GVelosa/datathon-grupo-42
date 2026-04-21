@@ -9,7 +9,7 @@ random_forest:
   decision_threshold: 0.35
 
 mlp:
-  input_dim: 31
+  input_dim: 33
   hidden_layers: [128, 64, 32]
   dropout: 0.3
   pos_weight: 577.0
@@ -60,7 +60,9 @@ feature_engineering:
     - V28
     - Amount
     - hour_of_day
+    - is_night
     - log_amount
+    - amount_zscore
 
 llm_models:
   routing: claude-haiku-4-5-20251001

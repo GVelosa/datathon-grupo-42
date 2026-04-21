@@ -95,7 +95,7 @@ class MLPFraudDetector(nn.Module):
         network: Rede neural sequencial com camadas ocultas e dropout.
     """
 
-    def __init__(self, input_dim: int = 31, hidden_layers: list[int] | None = None, dropout: float = 0.3) -> None:
+    def __init__(self, input_dim: int = 33, hidden_layers: list[int] | None = None, dropout: float = 0.3) -> None:
         """Inicializa a arquitetura MLP.
 
         Args:
