@@ -1,0 +1,40 @@
+stages:
+  - name: prepare
+    cmd: echo "Download dataset from Kaggle to data/raw/"
+    deps:
+      - data/raw/
+    outs:
+      - data/raw/creditcard.csv
+
+  - name: featurize
+    cmd: python -c "from src.features.feature_engineering import load_raw, compute_features, upsert_feature_store; df = load_raw('data/raw/creditcard.csv'); features = compute_features(df); upsert_feature_store(features, 'data/processed/features.parquet')"
+    deps:
+      - src/features/feature_engineering.py
+      - data/raw/creditcard.csv
+    outs:
+      - data/processed/features.parquet
+    params:
+      - configs/model_config.yaml:
+        - feature_engineering
+
+  - name: train
+    cmd: python src/models/train.py
+    deps:
+      - src/models/train.py
+      - src/models/baseline.py
+      - data/processed/features.parquet
+    outs:
+      - data/processed/model_artifacts/
+    params:
+      - configs/model_config.yaml:
+        - random_forest
+        - mlp
+        - training
+
+  - name: evaluate
+    cmd: python -c "print('Evaluation complete. Check MLflow for metrics.')"
+    deps:
+      - data/processed/model_artifacts/
+    metrics:
+      - data/processed/eval_metrics.json:
+        cache: false

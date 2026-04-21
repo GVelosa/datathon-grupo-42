@@ -1,0 +1,30 @@
+pairs:
+  - id: GS-001
+    query: "Qual o AUC-ROC atual do modelo de fraude?"
+    expected_answer: "O modelo de fraude tem AUC-ROC de 0.9743 no conjunto de validacao, acima do threshold minimo de 0.95."
+    context_docs: ["MODEL_CARD.md#performance"]
+    category: metricas
+
+  - id: GS-002
+    query: "Houve drift nos dados nas ultimas 24h?"
+    expected_answer: "Nao foi detectado drift significativo. PSI medio de 0.04, abaixo do threshold de 0.20."
+    context_docs: ["SYSTEM_CARD.md#monitoring"]
+    category: monitoramento
+
+  - id: GS-003
+    query: "Por que a transacao TX-9821 foi bloqueada?"
+    expected_answer: "TX-9821 foi bloqueada com probabilidade de fraude 94%. Feature V14=-8.3 esta 4.2 desvios abaixo da media."
+    context_docs: ["MODEL_CARD.md#explainability"]
+    category: fraude
+
+  - id: GS-004
+    query: "Quais sao as bases legais para processamento de dados de transacoes?"
+    expected_answer: "Base legal: LGPD Art. 7-IX interesse legitimo para prevencao a fraude. BACEN 4.658 exige transparencia algorítmica."
+    context_docs: ["LGPD_PLAN.md"]
+    category: lgpd
+
+  - id: GS-005
+    query: "Como o cliente pode contestar uma decisao de bloqueio?"
+    expected_answer: "O cliente pode solicitar revisao via canal de atendimento. LGPD Art. 20 garante direito a explicacao. SHAP values disponiveis via API /explain."
+    context_docs: ["LGPD_PLAN.md", "MODEL_CARD.md"]
+    category: lgpd

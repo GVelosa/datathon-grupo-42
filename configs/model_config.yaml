@@ -1,0 +1,70 @@
+# Hiperparametros e thresholds do modelo de fraude
+
+random_forest:
+  n_estimators: 200
+  max_depth: 15
+  class_weight: balanced
+  min_samples_leaf: 10
+  random_state: 42
+  decision_threshold: 0.35
+
+mlp:
+  input_dim: 31
+  hidden_layers: [128, 64, 32]
+  dropout: 0.3
+  pos_weight: 577.0
+  learning_rate: 0.001
+  epochs: 50
+  batch_size: 1024
+  early_stopping_patience: 5
+
+training:
+  train_ratio: 0.70
+  val_ratio: 0.15
+  random_state: 42
+  experiment_name: fraud-detection
+
+promotion:
+  min_delta_auc: 0.005
+  require_human_approval: true
+
+feature_engineering:
+  features:
+    - V1
+    - V2
+    - V3
+    - V4
+    - V5
+    - V6
+    - V7
+    - V8
+    - V9
+    - V10
+    - V11
+    - V12
+    - V13
+    - V14
+    - V15
+    - V16
+    - V17
+    - V18
+    - V19
+    - V20
+    - V21
+    - V22
+    - V23
+    - V24
+    - V25
+    - V26
+    - V27
+    - V28
+    - Amount
+    - hour_of_day
+    - log_amount
+
+llm_models:
+  routing: claude-haiku-4-5-20251001
+  judge: claude-haiku-4-5-20251001
+  agent_reasoning: claude-sonnet-4-6
+  ragas_eval: claude-sonnet-4-6
+  embedding: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
