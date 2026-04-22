@@ -49,6 +49,84 @@ class DriftReport(TypedDict):
     psi_by_feature: dict[str, float]
 
 
+class DriftDetector:
+    """Detecta data drift e prediction drift em produção.
+
+    Mantém a distribuição de referência (treino) e compara com dados correntes
+    usando PSI para features e KS para predições.
+
+    Attributes:
+        df_reference: DataFrame de referência (dados de treino ou baseline).
+        features: Lista de features a monitorar.
+        n_bins: Número de bins para cálculo do PSI.
+    """
+
+    def __init__(
+        self,
+        df_reference: pd.DataFrame,
+        features: list[str] | None = None,
+        n_bins: int = N_BINS,
+    ) -> None:
+        """Inicializa o detector com a distribuição de referência.
+
+        Args:
+            df_reference: DataFrame de referência (dados de treino).
+            features: Features a monitorar. Se None, usa todas as numéricas.
+            n_bins: Número de bins para PSI.
+        """
+        self.df_reference = df_reference
+        self.features = features or list(df_reference.select_dtypes(include=[np.number]).columns)
+        self.n_bins = n_bins
+
+    def compute_psi(
+        self,
+        reference: np.ndarray,
+        current: np.ndarray,
+        feature: str = "",
+    ) -> float:
+        """Calcula PSI entre duas distribuições de uma feature.
+
+        Args:
+            reference: Distribuição de referência.
+            current: Distribuição atual.
+            feature: Nome da feature (para logging).
+
+        Returns:
+            Valor PSI calculado.
+        """
+        psi = compute_psi(reference, current, n_bins=self.n_bins)
+        if feature:
+            logger.debug("PSI calculado", extra={"feature": feature, "psi": round(psi, 4)})
+        return psi
+
+    def compute_prediction_drift(
+        self,
+        ref_scores: np.ndarray,
+        cur_scores: np.ndarray,
+    ) -> tuple[float, bool]:
+        """Verifica drift nas predições via teste de Kolmogorov-Smirnov.
+
+        Args:
+            ref_scores: Scores de probabilidade de referência.
+            cur_scores: Scores de probabilidade atuais.
+
+        Returns:
+            Tupla (ks_statistic, has_drift).
+        """
+        return compute_prediction_drift(ref_scores, cur_scores)
+
+    def check_all_features(self, df_current: pd.DataFrame) -> DriftReport:
+        """Verifica drift em todas as features monitoradas.
+
+        Args:
+            df_current: DataFrame com dados recentes de produção.
+
+        Returns:
+            DriftReport com alertas e PSI por feature.
+        """
+        return check_all_features(self.df_reference, df_current, features=self.features)
+
+
 def compute_psi(reference: np.ndarray, current: np.ndarray, n_bins: int = N_BINS) -> float:
     """Calcula Population Stability Index (PSI) entre duas distribuições.
 

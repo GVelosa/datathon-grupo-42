@@ -159,6 +159,56 @@ def feature_lookup(input_data: FeatureInput) -> FeatureResult:
     )
 
 
+def knowledge_base_search(input_data: KBInput) -> KBResult:
+    """Busca informações no knowledge base interno via RAG (mock para dev).
+
+    Args:
+        input_data: Dicionário com query e opcionalmente top_k (padrão: 3).
+
+    Returns:
+        KBResult com lista de chunks relevantes e contexto concatenado.
+    """
+    query = input_data.get("query", "")
+    top_k = input_data.get("top_k", 3) or 3
+
+    logger.info("KnowledgeBaseSearch chamado", extra={"query_len": len(query), "top_k": top_k})
+
+    mock_chunks: list[KBChunk] = [
+        KBChunk(
+            content=(
+                "O modelo de fraude usa AUC-ROC como métrica principal. "
+                "O threshold de decisão é 0.35 para maximizar recall. "
+                "Base legal: LGPD Art. 7-IX (legítimo interesse), BACEN Resolução 4.658."
+            ),
+            source="MODEL_CARD.md",
+            relevance_score=0.92,
+        ),
+        KBChunk(
+            content=(
+                "Drift detection usa PSI (Population Stability Index). "
+                "Threshold de alerta: PSI > 0.2 = WARNING, PSI > 0.25 = CRITICAL. "
+                "Monitoramento de janela 24h rolling vs. baseline de treino."
+            ),
+            source="SYSTEM_CARD.md",
+            relevance_score=0.85,
+        ),
+        KBChunk(
+            content=(
+                "Features mais discriminativas: V14 (Cohen's d > 3), V17, V12. "
+                "Transações com V14 < -5 têm probabilidade de fraude > 80%. "
+                "SHAP values explicam decisões (Art. 20 LGPD — direito à explicação)."
+            ),
+            source="MODEL_CARD.md",
+            relevance_score=0.78,
+        ),
+    ]
+
+    context_parts = [f"[Fonte: {c['source']}]\n{c['content']}" for c in mock_chunks[:top_k]]
+    answer_context = "\n\n---\n\n".join(context_parts)
+
+    return KBResult(chunks=mock_chunks[:top_k], answer_context=answer_context)
+
+
 def alert_history_query(input_data: AlertInput) -> AlertResult:
     """Busca histórico de alertas de fraude e drift.
 

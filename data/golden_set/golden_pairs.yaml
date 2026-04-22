@@ -1,30 +1,273 @@
+# Golden Set — Datathon Grupo 42 | FIAP MLET Pós-Tech
+# 20 pares query/answer para avaliação RAG e LLM-as-judge
+# Categorias: metricas (5), monitoramento (4), fraude (4), lgpd (3), features (4)
+
 pairs:
+
+  # ── MÉTRICAS (5) ────────────────────────────────────────────────────────────
+
   - id: GS-001
     query: "Qual o AUC-ROC atual do modelo de fraude?"
-    expected_answer: "O modelo de fraude tem AUC-ROC de 0.9743 no conjunto de validacao, acima do threshold minimo de 0.95."
-    context_docs: ["MODEL_CARD.md#performance"]
+    expected_answer: >
+      O modelo de fraude tem AUC-ROC de 0.9743 no conjunto de validação,
+      acima do threshold mínimo de 0.95 definido no Model Card.
+      Este valor indica que o modelo discrimina corretamente fraudes de
+      transações legítimas em 97.43% dos casos.
+    context_docs:
+      - MODEL_CARD.md#performance
     category: metricas
 
   - id: GS-002
-    query: "Houve drift nos dados nas ultimas 24h?"
-    expected_answer: "Nao foi detectado drift significativo. PSI medio de 0.04, abaixo do threshold de 0.20."
-    context_docs: ["SYSTEM_CARD.md#monitoring"]
-    category: monitoramento
+    query: "Qual o F1-score do modelo e o que ele representa?"
+    expected_answer: >
+      O F1-score do modelo é 0.8821, calculado como média harmônica entre
+      Precision (0.91) e Recall (0.86). Para detecção de fraude com
+      desbalanceamento 577:1, o F1 é mais relevante que a acurácia porque
+      penaliza tanto falsos positivos (bloqueios indevidos) quanto falsos
+      negativos (fraudes não detectadas).
+    context_docs:
+      - MODEL_CARD.md#performance
+      - MODEL_CARD.md#metrics
+    category: metricas
 
   - id: GS-003
-    query: "Por que a transacao TX-9821 foi bloqueada?"
-    expected_answer: "TX-9821 foi bloqueada com probabilidade de fraude 94%. Feature V14=-8.3 esta 4.2 desvios abaixo da media."
-    context_docs: ["MODEL_CARD.md#explainability"]
-    category: fraude
+    query: "Quantas transações foram bloqueadas nas últimas 24 horas?"
+    expected_answer: >
+      Nas últimas 24 horas foram processadas 142.891 transações, das quais
+      329 foram bloqueadas como suspeitas de fraude (taxa de bloqueio de 0.23%).
+      A taxa real de fraude histórica é 0.17%, indicando que o modelo opera
+      com margem de segurança adequada sem excesso de falsos positivos.
+    context_docs:
+      - MODEL_CARD.md#production-metrics
+    category: metricas
 
   - id: GS-004
-    query: "Quais sao as bases legais para processamento de dados de transacoes?"
-    expected_answer: "Base legal: LGPD Art. 7-IX interesse legitimo para prevencao a fraude. BACEN 4.658 exige transparencia algorítmica."
-    context_docs: ["LGPD_PLAN.md"]
-    category: lgpd
+    query: "O que é o KS-Statistic e qual o valor atual do modelo?"
+    expected_answer: >
+      O KS-Statistic (Kolmogorov-Smirnov) mede a máxima separação entre as
+      distribuições de scores de fraude e legítimo. O modelo atual tem KS de 0.84,
+      valor acima de 0.80 que é o limiar para modelos de crédito de alta qualidade
+      conforme diretrizes BACEN. Quanto mais próximo de 1.0, melhor a separação.
+    context_docs:
+      - MODEL_CARD.md#metrics
+    category: metricas
 
   - id: GS-005
-    query: "Como o cliente pode contestar uma decisao de bloqueio?"
-    expected_answer: "O cliente pode solicitar revisao via canal de atendimento. LGPD Art. 20 garante direito a explicacao. SHAP values disponiveis via API /explain."
-    context_docs: ["LGPD_PLAN.md", "MODEL_CARD.md"]
+    query: "Qual o threshold de decisão do modelo e por que não é 0.5?"
+    expected_answer: >
+      O threshold de decisão é 0.35 (ao invés do padrão 0.5) porque o dataset
+      tem desbalanceamento extremo de 577:1 entre legítimas e fraudes.
+      Com threshold 0.5, o modelo seria excessivamente conservador e deixaria
+      passar muitas fraudes (alta taxa de falsos negativos). O valor 0.35 foi
+      calibrado via curva Precision-Recall para maximizar F1 no conjunto de validação.
+    context_docs:
+      - MODEL_CARD.md#decision-threshold
+    category: metricas
+
+  # ── MONITORAMENTO (4) ───────────────────────────────────────────────────────
+
+  - id: GS-006
+    query: "Houve drift nos dados nas últimas 24h?"
+    expected_answer: >
+      Não foi detectado drift significativo nas últimas 24 horas.
+      O PSI médio das features monitoradas é 0.04, bem abaixo do threshold
+      de WARNING (PSI > 0.20) e CRITICAL (PSI > 0.25).
+      O sistema opera de forma estável dentro da distribuição de treino.
+    context_docs:
+      - SYSTEM_CARD.md#monitoring
+    category: monitoramento
+
+  - id: GS-007
+    query: "O que acontece quando o PSI de uma feature ultrapassa 0.25?"
+    expected_answer: >
+      Quando o PSI de uma feature ultrapassa 0.25, é disparado um alerta CRITICAL
+      no Prometheus que notifica a equipe via alertmanager. O sistema registra o
+      evento no log estruturado e pode acionar automaticamente o pipeline de
+      retreinamento via DVC. Features com PSI > 0.25 indicam mudança significativa
+      na distribuição que pode degradar a performance do modelo.
+    context_docs:
+      - SYSTEM_CARD.md#drift-detection
+      - monitoring_config.yaml
+    category: monitoramento
+
+  - id: GS-008
+    query: "Com que frequência o modelo é reavaliado em produção?"
+    expected_answer: >
+      O modelo é reavaliado semanalmente em um subconjunto rotulado de 1.000
+      transações (performance drift). O data drift via PSI é monitorado a cada
+      24h em janela rolling. Se delta_AUC < -0.02 em relação ao champion, um
+      novo ciclo de treino é automaticamente disparado via pipeline DVC.
+    context_docs:
+      - SYSTEM_CARD.md#monitoring
+      - monitoring_config.yaml
+    category: monitoramento
+
+  - id: GS-009
+    query: "Quais métricas estão disponíveis no dashboard Prometheus?"
+    expected_answer: >
+      O dashboard Prometheus expõe 10 métricas customizadas: request_latency_seconds
+      (P50/P95/P99 por endpoint), request_total (volume por status code),
+      ragas_faithfulness_score, ragas_answer_relevancy_score (qualidade do agente),
+      drift_psi_score por feature, model_auc_current, fraud_rate_rolling_1h,
+      llm_tokens_used_total (por modelo e direção), guardrail_blocks_total
+      e pii_detections_total. Disponíveis na porta 9090/metrics.
+    context_docs:
+      - SYSTEM_CARD.md#observability
+      - monitoring_config.yaml
+    category: monitoramento
+
+  # ── FRAUDE (4) ──────────────────────────────────────────────────────────────
+
+  - id: GS-010
+    query: "Por que a transação TX-9821 foi bloqueada?"
+    expected_answer: >
+      A transação TX-9821 foi bloqueada com probabilidade de fraude de 94%.
+      A principal causa é a feature V14=-8.3, que está 4.2 desvios padrão abaixo
+      da média histórica (SHAP value: -0.42). Adicionalmente, o horário da
+      transação foi às 2h da manhã (período de alta incidência de fraude)
+      e o valor de R$ 4.850 é atípico para o perfil do cliente.
+    context_docs:
+      - MODEL_CARD.md#explainability
+    category: fraude
+
+  - id: GS-011
+    query: "Quais são os sinais mais comuns de uma transação fraudulenta?"
+    expected_answer: >
+      Os principais sinais de fraude identificados pelo modelo são:
+      (1) V14 muito negativo (< -5): indica comportamento anômalo no padrão de gasto;
+      (2) Transações no período noturno (22h-6h): taxa de fraude 3x maior;
+      (3) Microtransações < R$ 10: indicativo de teste de cartão roubado;
+      (4) V17 e V12 fora do intervalo normal; (5) Combinação de valor alto com
+      horário incomum. O modelo integra todos esses sinais com peso proporcional
+      ao SHAP value de cada feature.
+    context_docs:
+      - MODEL_CARD.md#features
+      - MODEL_CARD.md#explainability
+    category: fraude
+
+  - id: GS-012
+    query: "Como o modelo lida com o desbalanceamento de 577 legítimas para 1 fraude?"
+    expected_answer: >
+      O modelo usa duas estratégias para lidar com o desbalanceamento extremo:
+      (1) RandomForest com class_weight='balanced', que pondera cada amostra
+      inversamente à frequência da classe;
+      (2) MLP PyTorch com pos_weight=577 na BCEWithLogitsLoss.
+      Além disso, o threshold de decisão é calibrado em 0.35 (não 0.5) para
+      maximizar F1. Essas técnicas garantem recall > 0.86 sem sacrificar precisão.
+    context_docs:
+      - MODEL_CARD.md#training
+    category: fraude
+
+  - id: GS-013
+    query: "O que é um falso positivo no contexto de detecção de fraude e qual o impacto no negócio?"
+    expected_answer: >
+      Um falso positivo é uma transação legítima incorretamente bloqueada pelo modelo.
+      No contexto bancário, isso gera atrito para o cliente, ligações para o SAC e
+      potencial cancelamento de cartão. O modelo atual tem precisão de 91%, significando
+      que 9% dos bloqueios são falsos positivos. O custo por falso positivo é estimado
+      em R$ 15 (atendimento + reputação), contra R$ 250 médios por fraude não detectada.
+      O threshold 0.35 balanceia este trade-off com base no ROI.
+    context_docs:
+      - MODEL_CARD.md#intended-use
+      - MODEL_CARD.md#limitations
+    category: fraude
+
+  # ── LGPD (3) ────────────────────────────────────────────────────────────────
+
+  - id: GS-014
+    query: "Quais são as bases legais para processamento de dados de transações?"
+    expected_answer: >
+      O processamento de dados de transações para detecção de fraude tem dupla
+      base legal: (1) LGPD Art. 7-IX (legítimo interesse do controlador) para
+      prevenção a fraude financeira, desde que os direitos do titular não
+      prevaleçam; (2) LGPD Art. 7-II (cumprimento de obrigação legal) via
+      BACEN Resolução 4.658/2018, que exige controles de prevenção a fraude.
+      Um Relatório de Impacto (RIPD) documenta a proporcionalidade do tratamento.
+    context_docs:
+      - LGPD_PLAN.md
     category: lgpd
+
+  - id: GS-015
+    query: "Como o cliente pode contestar uma decisão de bloqueio?"
+    expected_answer: >
+      O cliente pode contestar uma decisão de bloqueio por dois canais:
+      (1) SAC: atendimento humano em até 5 dias úteis conforme BACEN;
+      (2) API /explain: retorna SHAP values em linguagem acessível conforme
+      LGPD Art. 20 (direito à explicação de decisões automatizadas).
+      A resposta deve informar os principais fatores sem expor o modelo interno.
+      O prazo de resposta da contestação é de 5 dias úteis (CDC Art. 49).
+    context_docs:
+      - LGPD_PLAN.md
+      - MODEL_CARD.md#explainability
+    category: lgpd
+
+  - id: GS-016
+    query: "Os dados de transações podem ser usados para treinamento de outros modelos?"
+    expected_answer: >
+      Não diretamente. Os dados de transações são pseudonimizados (features V1-V28
+      são componentes PCA — não reversíveis para dados originais) e podem ser usados
+      para treinar modelos de prevenção a fraude no escopo da base legal original.
+      Para outros fins, é necessário nova avaliação legal e, possivelmente, consentimento
+      (LGPD Art. 7-I). A retenção dos dados de treino é de 5 anos conforme política
+      interna e BACEN 4.658. Dados devem ser excluídos a pedido do titular (Art. 18-VI),
+      salvo obrigação legal de retenção.
+    context_docs:
+      - LGPD_PLAN.md
+      - SYSTEM_CARD.md#data-governance
+    category: lgpd
+
+  # ── FEATURES (4) ────────────────────────────────────────────────────────────
+
+  - id: GS-017
+    query: "O que representa a feature V14 e por que ela é a mais importante?"
+    expected_answer: >
+      V14 é o 14º componente PCA das features originais de transação (anonimizadas).
+      É a feature mais discriminativa com Cohen's d > 3, significando que as
+      distribuições de fraude e transações legítimas praticamente não se sobrepõem.
+      Valores de V14 < -5 estão associados a probabilidade de fraude > 80%.
+      Por ser componente PCA, V14 não expõe dados pessoais (conformidade LGPD),
+      mas captura padrões latentes que distinguem comportamento fraudulento.
+    context_docs:
+      - MODEL_CARD.md#features
+    category: features
+
+  - id: GS-018
+    query: "Por que o feature log_amount é usado em vez de Amount diretamente?"
+    expected_answer: >
+      O Amount bruto tem distribuição altamente assimétrica (valores de R$ 0 a
+      R$ 25.691) que prejudica modelos baseados em distância e redes neurais.
+      A transformação log1p(Amount) comprime a escala, tornando a distribuição
+      mais próxima da normal e melhorando a convergência do MLP. O Amount bruto
+      também é mantido como feature separada para capturar o sinal de valores
+      extremos. O amount_zscore complementa identificando transações atípicas
+      em relação ao perfil histórico do portfólio.
+    context_docs:
+      - MODEL_CARD.md#features
+    category: features
+
+  - id: GS-019
+    query: "Como a feature is_night é calculada e qual sua relevância?"
+    expected_answer: >
+      A feature is_night é binária (0 ou 1) calculada como:
+      is_night = 1 se hora_da_transação ∈ [22h, 6h], 0 caso contrário.
+      A hora é derivada de Time % 86400 / 3600 (segundos desde meia-noite).
+      Sua relevância vem do Insight de Negócio 2 da EDA: a taxa de fraude
+      no período noturno é ~3x maior que durante o dia. A feature amplifica
+      este sinal temporal que os componentes PCA (V1-V28) não capturam diretamente.
+    context_docs:
+      - MODEL_CARD.md#features
+    category: features
+
+  - id: GS-020
+    query: "Quantas features o modelo usa e como elas foram selecionadas?"
+    expected_answer: >
+      O modelo usa 33 features no total: V1-V28 (28 componentes PCA originais
+      do dataset Kaggle, já anonimizados), Amount (valor bruto), e 4 features
+      derivadas: log_amount, amount_zscore, hour_of_day e is_night.
+      A seleção foi baseada na análise de separabilidade da EDA (Cohen's d e
+      KS-statistic). As features V1-V28 não passam por seleção adicional pois
+      já são componentes PCA ortogonais (sem multicolinearidade). As derivadas
+      foram adicionadas com base em insights de negócio documentados.
+    context_docs:
+      - MODEL_CARD.md#features
+    category: features

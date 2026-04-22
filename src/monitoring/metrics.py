@@ -101,6 +101,50 @@ def record_llm_tokens(model: str, input_tokens: int, output_tokens: int) -> None
     LLM_TOKENS_USED.labels(model=model, direction="output").inc(output_tokens)
 
 
+def record_request(
+    endpoint: str,
+    method: str,
+    status_code: int,
+    duration_s: float,
+) -> None:
+    """Registra uma requisição HTTP nas métricas de latência e contagem.
+
+    Convenção de uso: chamar no middleware de logging da FastAPI.
+
+    Args:
+        endpoint: Path do endpoint (ex: '/predict', '/ask').
+        method: Método HTTP (GET, POST, etc.).
+        status_code: Código de status HTTP da resposta.
+        duration_s: Duração da requisição em segundos.
+    """
+    REQUEST_LATENCY.labels(endpoint=endpoint, method=method).observe(duration_s)
+    REQUEST_TOTAL.labels(endpoint=endpoint, status_code=str(status_code)).inc()
+    logger.debug(
+        "Métricas de request registradas",
+        extra={"endpoint": endpoint, "status": status_code, "duration_ms": round(duration_s * 1000, 2)},
+    )
+
+
+def update_model_auc(auc: float) -> None:
+    """Atualiza a métrica de AUC-ROC atual do modelo champion.
+
+    Args:
+        auc: Valor do AUC-ROC em [0, 1].
+    """
+    MODEL_AUC_CURRENT.set(auc)
+    logger.info("AUC do modelo atualizado", extra={"auc": auc})
+
+
+def update_fraud_rate(rate: float) -> None:
+    """Atualiza a taxa de fraude rolling na última hora.
+
+    Args:
+        rate: Taxa de fraude (fraudes / total_transações) em [0, 1].
+    """
+    FRAUD_RATE_ROLLING.set(rate)
+    logger.debug("Taxa de fraude atualizada", extra={"rate": rate})
+
+
 def start_metrics_server(port: int = 9090) -> None:
     """Inicia o servidor HTTP de métricas Prometheus em porta dedicada.
 

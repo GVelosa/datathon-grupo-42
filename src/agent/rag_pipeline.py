@@ -92,10 +92,11 @@ class RAGPipeline:
         docs_dir = Path(docs_dir)
         self.chunks = []
 
-        for file_path in docs_dir.glob("**/*.{md,txt}"):
-            text = file_path.read_text(encoding="utf-8")
-            file_chunks = self._split_text(text, source=file_path.name)
-            self.chunks.extend(file_chunks)
+        for pattern in ("**/*.md", "**/*.txt"):
+            for file_path in sorted(docs_dir.glob(pattern)):
+                text = file_path.read_text(encoding="utf-8")
+                file_chunks = self._split_text(text, source=file_path.name)
+                self.chunks.extend(file_chunks)
 
         logger.info("Documentos carregados", extra={"chunks": len(self.chunks), "dir": str(docs_dir)})
         return len(self.chunks)
