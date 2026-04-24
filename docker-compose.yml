@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+  # ── API de Fraude + Agente ReAct ─────────────────────────────────────────────
+  fraud-api:
+    build:
+      context: .
+      dockerfile: src/serving/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI:-http://mlflow:5000}
+      - PROMETHEUS_PORT=9090
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./configs:/app/configs:ro
+      - ./docs:/app/docs:ro
+      - mlflow_data:/app/mlruns
+    depends_on:
+      - mlflow
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── MLflow Tracking Server ────────────────────────────────────────────────────
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.12.2
+    ports:
+      - "5000:5000"
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri sqlite:///mlflow.db
+      --default-artifact-root /mlflow/artifacts
+    volumes:
+      - mlflow_data:/mlflow
+
+  # ── Prometheus ────────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+
+  # ── Grafana ───────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.2
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=datathon42
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  mlflow_data:
+  prometheus_data:
+  grafana_data:

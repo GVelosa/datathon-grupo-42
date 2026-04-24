@@ -53,3 +53,37 @@ def test_agent_ask_returns_dict(mock_anthropic_client):
     assert "answer" in result
     assert "iterations" in result
     assert "had_pii" in result
+
+
+def test_agent_stops_at_max_iterations():
+    """RT-05: Agente deve parar ao atingir max_iterations (OWASP LLM08)."""
+    from src.agent.react_agent import BankHealthAgent
+    from src.security.guardrails import InputGuardrail, OutputGuardrail
+
+    tool_block = MagicMock()
+    tool_block.type = "tool_use"
+    tool_block.name = "fraud_metrics_lookup"
+    tool_block.id = "tool_abc123"
+    tool_block.input = {"period": "24h"}
+
+    loop_response = MagicMock()
+    loop_response.stop_reason = "tool_use"
+    loop_response.content = [tool_block]
+    loop_response.usage.input_tokens = 100
+    loop_response.usage.output_tokens = 50
+
+    client = MagicMock()
+    client.messages.create.return_value = loop_response
+
+    agent = BankHealthAgent.__new__(BankHealthAgent)
+    agent.input_guardrail = InputGuardrail()
+    agent.output_guardrail = OutputGuardrail()
+    agent.client = client
+    agent.model = "claude-haiku-4-5-20251001"
+    agent.max_iterations = 3
+    agent.rag_pipeline = None
+
+    result = agent.ask("Qual o status do sistema?")
+
+    assert result["iterations"] == 3
+    assert "limite" in result["answer"].lower() or "interrompida" in result["answer"].lower()

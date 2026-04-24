@@ -84,11 +84,11 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
       - run: pip install -e ".[eval]"
-      - run: python evaluation/ragas_eval.py --golden-set data/golden_set/golden_pairs.yaml --output evaluation/ragas_report.json
+      - run: python evaluation/ragas_eval.py
       - uses: actions/upload-artifact@v4
         with:
           name: ragas-report
-          path: evaluation/ragas_report.json
+          path: data/processed/evaluation/ragas_report.json
 
   build:
     name: Docker Build

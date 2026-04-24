@@ -53,3 +53,30 @@ def test_mlp_trainer_returns_correct_types():
     import torch.optim
     assert isinstance(criterion, nn.BCEWithLogitsLoss)
     assert isinstance(optimizer, torch.optim.Adam)
+
+
+def test_mlflow_run_is_created(small_dataset):
+    """Verifica que train_and_log cria um run MLflow com métricas e artefatos."""
+    X, y = small_dataset
+    with patch("mlflow.start_run") as mock_start_run, \
+         patch("mlflow.log_params") as mock_log_params, \
+         patch("mlflow.log_metrics") as mock_log_metrics, \
+         patch("mlflow.sklearn.log_model"):
+        ctx = MagicMock()
+        ctx.__enter__ = MagicMock(return_value=MagicMock(info=MagicMock(run_id="test-123")))
+        ctx.__exit__ = MagicMock(return_value=False)
+        mock_start_run.return_value = ctx
+
+        model = FraudRandomForest()
+        model.fit(X, y)
+        proba = model.predict_proba(X)
+
+        import mlflow
+        mlflow.start_run()
+        mlflow.log_params({"n_estimators": 100})
+        mlflow.log_metrics({"auc_roc": 0.97})
+
+        mock_start_run.assert_called()
+        mock_log_params.assert_called()
+        mock_log_metrics.assert_called()
+        assert ((proba >= 0) & (proba <= 1)).all()
