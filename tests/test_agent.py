@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from src.agent.tools import (
     fraud_metrics_lookup, drift_status_checker, feature_lookup,
     alert_history_query, FraudMetricsInput, DriftInput, FeatureInput, AlertInput

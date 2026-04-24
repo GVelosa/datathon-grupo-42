@@ -1,5 +1,4 @@
-import pytest
-from src.security.guardrails import InputGuardrail, OutputGuardrail, GuardrailResult
+from src.security.guardrails import InputGuardrail, OutputGuardrail
 from src.security.pii_detection import PIIDetector
 
 guardrail = InputGuardrail()
