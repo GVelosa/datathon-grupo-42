@@ -1,8 +1,10 @@
+from unittest.mock import MagicMock, patch
+
 import numpy as np
 import pytest
-from unittest.mock import patch, MagicMock
-from src.models.baseline import FraudRandomForest, MLPFraudDetector, build_mlp_trainer
 import torch
+
+from src.models.baseline import FraudRandomForest, MLPFraudDetector, build_mlp_trainer
 
 @pytest.fixture
 def small_dataset():

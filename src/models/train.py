@@ -14,7 +14,6 @@ import mlflow.sklearn
 import numpy as np
 import pandas as pd
 import torch
-import torch.nn as nn
 from sklearn.metrics import (
     average_precision_score,
     f1_score,
@@ -365,7 +364,8 @@ def evaluate_champion_challenger(
 
 if __name__ == "__main__":
     import yaml
-    from src.features.feature_engineering import load_raw, compute_features, upsert_feature_store
+
+    from src.features.feature_engineering import compute_features, load_raw, upsert_feature_store
 
     logging.basicConfig(level=logging.INFO)
 

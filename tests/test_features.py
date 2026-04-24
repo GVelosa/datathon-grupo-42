@@ -1,9 +1,14 @@
-import pandas as pd
-import numpy as np
-import pytest
-from pathlib import Path
 import tempfile
-from src.features.feature_engineering import compute_features, upsert_feature_store, get_train_val_test_splits
+from pathlib import Path
+
+import pandas as pd
+import pytest
+
+from src.features.feature_engineering import (
+    compute_features,
+    get_train_val_test_splits,
+    upsert_feature_store,
+)
 
 def test_compute_features_adds_columns(sample_transactions_df):
     result = compute_features(sample_transactions_df)
@@ -25,7 +30,6 @@ def test_upsert_does_not_destroy_existing(sample_transactions_df):
         path = Path(tmpdir) / "feature_store.parquet"
         features = compute_features(sample_transactions_df)
         features = features.reset_index()
-        original_count = len(features)
         upsert_feature_store(features.head(100), path, primary_key="index")
         upsert_feature_store(features.tail(50), path, primary_key="index")
         existing = pd.read_parquet(path)

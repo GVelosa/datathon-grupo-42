@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-import pytest
-import pandas as pd
-import numpy as np
 from unittest.mock import MagicMock
+
+import numpy as np
+import pandas as pd
+import pytest
 
 
 @pytest.fixture

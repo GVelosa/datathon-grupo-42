@@ -1,8 +1,16 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
+
 from src.agent.tools import (
-    fraud_metrics_lookup, drift_status_checker, feature_lookup,
-    alert_history_query, FraudMetricsInput, DriftInput, FeatureInput, AlertInput
+    AlertInput,
+    DriftInput,
+    FeatureInput,
+    FraudMetricsInput,
+    alert_history_query,
+    drift_status_checker,
+    feature_lookup,
+    fraud_metrics_lookup,
 )
 
 def test_fraud_metrics_returns_valid_auc():

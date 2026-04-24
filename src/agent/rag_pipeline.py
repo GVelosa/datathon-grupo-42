@@ -130,8 +130,9 @@ class RAGPipeline:
         Args:
             index_path: Caminho base para salvar index.faiss e chunks.json.
         """
-        import faiss
         import json
+
+        import faiss
 
         index_path = Path(index_path)
         index_path.mkdir(parents=True, exist_ok=True)
@@ -145,8 +146,9 @@ class RAGPipeline:
         Args:
             index_path: Caminho base com index.faiss e chunks.json.
         """
-        import faiss
         import json
+
+        import faiss
 
         index_path = Path(index_path)
         self.index = faiss.read_index(str(index_path / "index.faiss"))
@@ -179,7 +181,7 @@ class RAGPipeline:
         scores, indices = self.index.search(query_emb.astype("float32"), k)
 
         results = []
-        for score, idx in zip(scores[0], indices[0]):
+        for score, idx in zip(scores[0], indices[0], strict=False):
             if idx < len(self.chunks):
                 chunk = self.chunks[idx].copy()
                 chunk["relevance_score"] = float(score)
