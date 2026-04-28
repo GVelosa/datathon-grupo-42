@@ -56,6 +56,7 @@ class RAGPipeline:
         """
         if self._encoder is None:
             from sentence_transformers import SentenceTransformer
+
             self._encoder = SentenceTransformer(self.embedding_model_name)
             logger.info("Encoder carregado", extra={"model": self.embedding_model_name})
         return self._encoder

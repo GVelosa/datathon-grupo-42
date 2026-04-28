@@ -7,13 +7,18 @@ import os
 import time
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any
 
 import uvicorn
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 
 from src.security.guardrails import InputGuardrail, OutputGuardrail
+
+# Carrega .env da raiz do projeto independente do diretório de execução
+load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +63,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+from prometheus_client import make_asgi_app as _make_asgi_app  # noqa: E402
+
+app.mount("/metrics", _make_asgi_app())
+
 
 @app.middleware("http")
 async def logging_middleware(request: Request, call_next: Any) -> Response:
@@ -71,7 +80,7 @@ async def logging_middleware(request: Request, call_next: Any) -> Response:
         Response com headers e logging de latência.
     """
     start = time.time()
-    response = await call_next(request)
+    response: Response = await call_next(request)
     duration_ms = round((time.time() - start) * 1000, 2)
     logger.info(
         "HTTP request",
@@ -99,9 +108,7 @@ class PredictRequest(BaseModel):
     """
 
     transaction_id: str = Field(..., description="ID único da transação.")
-    features: dict[str, float] = Field(
-        ..., description="Features numéricas da transação."
-    )
+    features: dict[str, float] = Field(..., description="Features numéricas da transação.")
 
 
 class PredictResponse(BaseModel):
@@ -134,9 +141,7 @@ class AskRequest(BaseModel):
         max_length=1000,
         description="Pergunta em linguagem natural.",
     )
-    session_id: str | None = Field(
-        default=None, description="ID de sessão para rastreamento."
-    )
+    session_id: str | None = Field(default=None, description="ID de sessão para rastreamento.")
 
 
 class AskResponse(BaseModel):
@@ -255,8 +260,7 @@ async def ask(request: AskRequest) -> AskResponse:
         )
         raise HTTPException(
             status_code=400,
-            detail=f"Requisição bloqueada: {guardrail_result['reason']} "
-                   f"(OWASP {guardrail_result['category']})",
+            detail=f"Requisição bloqueada: {guardrail_result['reason']} (OWASP {guardrail_result['category']})",
         )
 
     if _agent is None:
@@ -292,4 +296,4 @@ async def ask(request: AskRequest) -> AskResponse:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_config=None)
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_config=None)  # nosec B104

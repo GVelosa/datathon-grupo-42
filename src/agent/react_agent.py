@@ -212,21 +212,14 @@ class BankHealthAgent:
         """
         logger.info("Ferramenta invocada", extra={"tool": tool_name, "input": tool_input})
 
-        result: (
-            FraudMetricsResult
-            | DriftResult
-            | FeatureResult
-            | KBResult
-            | AlertResult
-            | dict[str, str]
-        )
+        result: FraudMetricsResult | DriftResult | FeatureResult | KBResult | AlertResult | dict[str, str]
 
         if tool_name == "fraud_metrics_lookup":
-            result = fraud_metrics_lookup(FraudMetricsInput(**tool_input))
+            result = fraud_metrics_lookup(FraudMetricsInput(**tool_input))  # type: ignore[typeddict-item]
         elif tool_name == "drift_status_checker":
-            result = drift_status_checker(DriftInput(**tool_input))
+            result = drift_status_checker(DriftInput(**tool_input))  # type: ignore[typeddict-item]
         elif tool_name == "feature_lookup":
-            result = feature_lookup(FeatureInput(**tool_input))
+            result = feature_lookup(FeatureInput(**tool_input))  # type: ignore[typeddict-item]
         elif tool_name == "knowledge_base_search":
             if self.rag_pipeline is not None:
                 ctx = self.rag_pipeline.get_context(
@@ -238,9 +231,9 @@ class BankHealthAgent:
                     answer_context=ctx,
                 )
             else:
-                result = knowledge_base_search(KBInput(**tool_input))
+                result = knowledge_base_search(KBInput(**tool_input))  # type: ignore[typeddict-item]
         elif tool_name == "alert_history_query":
-            result = alert_history_query(AlertInput(**tool_input))
+            result = alert_history_query(AlertInput(**tool_input))  # type: ignore[typeddict-item]
         else:
             logger.warning("Ferramenta desconhecida", extra={"tool": tool_name})
             result = {"error": f"Ferramenta desconhecida: {tool_name}"}
@@ -279,8 +272,7 @@ class BankHealthAgent:
                 },
             )
             raise ValueError(
-                f"Requisição bloqueada: {guardrail_result['reason']} "
-                f"(OWASP {guardrail_result['category']})"
+                f"Requisição bloqueada: {guardrail_result['reason']} (OWASP {guardrail_result['category']})"
             )
 
         messages: list[dict[str, Any]] = [{"role": "user", "content": query}]
@@ -294,8 +286,8 @@ class BankHealthAgent:
                 model=self.model,
                 max_tokens=2048,
                 system=SYSTEM_PROMPT,
-                tools=TOOLS_SCHEMA,
-                messages=messages,
+                tools=TOOLS_SCHEMA,  # type: ignore[arg-type]
+                messages=messages,  # type: ignore[arg-type]
             )
 
             stop_reason: str = response.stop_reason or "unknown"

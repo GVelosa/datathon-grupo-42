@@ -1,0 +1,128 @@
+schema: '2.0'
+stages:
+  featurize:
+    cmd: python scripts/featurize.py
+    deps:
+    - path: data/raw/creditcard.csv
+      hash: md5
+      md5: e90efcb83d69faf99fcab8b0255024de
+      size: 150828752
+    - path: scripts/featurize.py
+      hash: md5
+      md5: b1f4c678eab9adf936d6e4aa773c5543
+      size: 487
+    - path: src/features/feature_engineering.py
+      hash: md5
+      md5: 7bd544ca597ee44c7578bbfa52601707
+      size: 5337
+    params:
+      configs/model_config.yaml:
+        feature_engineering:
+          features:
+          - V1
+          - V2
+          - V3
+          - V4
+          - V5
+          - V6
+          - V7
+          - V8
+          - V9
+          - V10
+          - V11
+          - V12
+          - V13
+          - V14
+          - V15
+          - V16
+          - V17
+          - V18
+          - V19
+          - V20
+          - V21
+          - V22
+          - V23
+          - V24
+          - V25
+          - V26
+          - V27
+          - V28
+          - Amount
+          - hour_of_day
+          - is_night
+          - log_amount
+          - amount_zscore
+    outs:
+    - path: data/processed/features.parquet
+      hash: md5
+      md5: fb33ebe7e9e6527356ba9536ec6316a6
+      size: 75477539
+  train:
+    cmd: python scripts/train.py
+    deps:
+    - path: configs/model_config.yaml
+      hash: md5
+      md5: 4852993edce332ab706e61b7d97db191
+      size: 1446
+    - path: data/processed/features.parquet
+      hash: md5
+      md5: fed906a3f6294c470d438dabc3202d55
+      size: 75477539
+    - path: scripts/train.py
+      hash: md5
+      md5: 39b74620dab236166482b0d407113eac
+      size: 248
+    - path: src/features/feature_engineering.py
+      hash: md5
+      md5: 7bd544ca597ee44c7578bbfa52601707
+      size: 5337
+    - path: src/models/baseline.py
+      hash: md5
+      md5: c8b9b169fdd1ab81ac5f9189a6125d97
+      size: 5368
+    - path: src/models/train.py
+      hash: md5
+      md5: bbc934464142be25ff7a9c141b981f98
+      size: 19200
+    params:
+      configs/model_config.yaml:
+        mlp:
+          input_dim: 33
+          hidden_layers:
+          - 128
+          - 64
+          - 32
+          dropout: 0.3
+          pos_weight: 577.0
+          learning_rate: 0.001
+          epochs: 50
+          batch_size: 1024
+          early_stopping_patience: 5
+        random_forest:
+          n_estimators: 200
+          max_depth: 15
+          class_weight: balanced
+          min_samples_leaf: 10
+          random_state: 42
+          decision_threshold: 0.35
+        training:
+          train_ratio: 0.7
+          val_ratio: 0.15
+          random_state: 42
+          experiment_name: fraud-detection
+    outs:
+    - path: data/processed/eval_metrics.json
+      hash: md5
+      md5: b66726d03d21cd8d7bf9ac4e6a065746
+      size: 1004
+  evaluate:
+    cmd: python scripts/evaluate.py
+    deps:
+    - path: data/processed/eval_metrics.json
+      hash: md5
+      md5: b66726d03d21cd8d7bf9ac4e6a065746
+      size: 1004
+    - path: scripts/evaluate.py
+      hash: md5
+      md5: 4070956c19fb08c2c523a52377f6caff
+      size: 1094

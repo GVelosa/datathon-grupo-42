@@ -24,8 +24,14 @@ training:
   random_state: 42
   experiment_name: fraud-detection
 
+smote:
+  enabled: true
+  sampling_strategy: 0.10      # minoria:maioria após SMOTE (10% ≈ 57:1, era 577:1)
+  random_state: 42
+
 promotion:
-  min_delta_auc: 0.005
+  primary_metric: average_precision   # PR-AUC — mais informativa para dados desbalanceados
+  min_delta: 0.005                    # delta mínimo na métrica primária para promoção
   require_human_approval: true
 
 feature_engineering:

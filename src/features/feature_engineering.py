@@ -12,10 +12,13 @@ from sklearn.model_selection import train_test_split
 
 logger = logging.getLogger(__name__)
 
-FEATURE_COLS: list[str] = (
-    [f"V{i}" for i in range(1, 29)]
-    + ["Amount", "hour_of_day", "is_night", "log_amount", "amount_zscore"]
-)
+FEATURE_COLS: list[str] = [f"V{i}" for i in range(1, 29)] + [
+    "Amount",
+    "hour_of_day",
+    "is_night",
+    "log_amount",
+    "amount_zscore",
+]
 # 33 features total: V1-V28 (PCA) + Amount + 4 derived (hour_of_day, is_night, log_amount, amount_zscore)
 TARGET_COL: str = "Class"
 

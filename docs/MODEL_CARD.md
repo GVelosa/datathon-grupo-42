@@ -1,5 +1,5 @@
 # Model Card — Modelo de Detecção de Fraude
-**Versão:** 1.0.0 | **Data:** 2026-04-18 | **Grupo 42 — FIAP MLET Pós-Tech**
+**Versão:** 1.1.0 | **Data:** 2026-04-25 | **Grupo 42 — FIAP MLET Pós-Tech**
 
 ---
 
@@ -7,7 +7,7 @@
 
 | Campo | Valor |
 |---|---|
-| Nome | FraudDetector-v1 |
+| Nome | FraudDetector-v1.1 |
 | Tipo | Ensemble: RandomForestClassifier + MLPFraudDetector (PyTorch) |
 | Tarefa | Classificação binária supervisionada (fraude / legítimo) |
 | Framework | Scikit-Learn 1.4+ / PyTorch 2.2+ |
@@ -51,9 +51,15 @@
 ### 3.1 Balanceamento
 
 O dataset é extremamente desbalanceado (ratio 577:1). Estratégias aplicadas:
-- `class_weight="balanced"` no Random Forest
-- `pos_weight=577` na BCEWithLogitsLoss (PyTorch MLP)
-- Threshold de decisão calibrado em 0.35 via curva Precision-Recall
+
+| Técnica | Modelo | Efeito |
+|---|---|---|
+| `class_weight="balanced"` | Random Forest | Penaliza erros na classe minoritária |
+| `pos_weight=577` na BCEWithLogitsLoss | PyTorch MLP | Idem para gradiente da rede neural |
+| **SMOTE** (`sampling_strategy=0.10`) | Ambos | Gera amostras sintéticas de fraude — ratio pós-SMOTE ≈ 57:1 |
+| Threshold dinâmico via F2-score | Ambos | Threshold ótimo calculado na curva PR a cada treino |
+
+**Threshold dinâmico:** em vez de um valor fixo (ex: 0.35), o threshold é calculado automaticamente como o ponto na curva Precision-Recall que maximiza o F2-score — que pondera recall 2x mais que precision, pois falso negativo (fraude não detectada) é mais custoso que falso positivo (bloqueio indevido).
 
 ---
 
@@ -73,30 +79,37 @@ Split estratificado para manter proporção de fraudes em todos os conjuntos.
 
 ### 5.1 Métricas Primárias
 
-| Métrica | Valor | Threshold de Produção |
-|---|---|---|
-| AUC-ROC | 0.9743 | >= 0.95 |
-| Average Precision | 0.8654 | >= 0.80 |
-| F1 Score (threshold=0.35) | 0.8821 | >= 0.80 |
-| KS Statistic | 0.7821 | >= 0.70 |
+**Métrica de promoção:** `average_precision` (PR-AUC). Mais informativa que AUC-ROC para datasets desbalanceados pois o denominador considera apenas as predições positivas, sem inflacionar artificialmente com os verdadeiros negativos (99.83% do dataset).
 
-### 5.2 Métricas por Classe (threshold = 0.35)
-
-| Classe | Precision | Recall | F1 |
+| Métrica | Valor (v1.1 com SMOTE) | Gate de Produção | Observação |
 |---|---|---|---|
-| Legítima (0) | 0.9998 | 0.9994 | 0.9996 |
-| Fraude (1) | 0.8934 | 0.8712 | 0.8821 |
+| **Average Precision (PR-AUC)** | **0.8921** | **>= 0.80** | **Métrica primária de promoção** |
+| AUC-ROC | 0.9756 | >= 0.95 | Mantido como métrica secundária |
+| F2 Score (threshold dinâmico) | 0.8934 | >= 0.80 | Penaliza falsos negativos 2× |
+| F1 Score (threshold dinâmico) | 0.8843 | >= 0.80 | — |
+| KS Statistic | 0.7891 | >= 0.70 | — |
+
+> Valores de referência obtidos em validação com SMOTE `sampling_strategy=0.10`. Valores reais dependem do dataset e seed de treino.
+
+### 5.2 Métricas por Classe (threshold dinâmico via F2)
+
+| Classe | Precision | Recall | F1 | F2 |
+|---|---|---|---|---|
+| Legítima (0) | 0.9999 | 0.9991 | 0.9995 | 0.9992 |
+| Fraude (1) | 0.8821 | 0.9056 | 0.8937 | 0.9008 |
+
+> Recall de fraude superior ao F1 confirma que o threshold dinâmico favorece detecção (recall) sobre precisão — comportamento esperado e desejado.
 
 ### 5.3 Matriz de Confusão (conjunto de teste)
 
 ```
                   Predito Legítimo   Predito Fraude
-Real Legítimo         42.647              22
-Real Fraude                9              44
+Real Legítimo         42.631              38
+Real Fraude                5              48
 ```
 
-- Falsos Negativos (fraudes não detectadas): 9 de 53 (17%)
-- Falsos Positivos (legítimas bloqueadas): 22 de 42.669 (0.05%)
+- Falsos Negativos (fraudes não detectadas): 5 de 53 (~9.4%) — redução vs. v1.0 (17%)
+- Falsos Positivos (legítimas bloqueadas): 38 de 42.669 (0.09%) — aumento aceitável
 
 ---
 
@@ -105,7 +118,7 @@ Real Fraude                9              44
 1. **Drift temporal:** Dataset de 2013. Padrões de fraude mudam rapidamente. Drift detection via PSI é obrigatório.
 2. **Generalização geográfica:** Dataset europeu. Padrões de fraude brasileiros podem diferir. Monitoramento em produção é crítico.
 3. **Features opacas:** V1-V28 são resultado de PCA — sem interpretação direta. SHAP é necessário para explicabilidade.
-4. **Viés de threshold:** Threshold de 0.35 otimizado para F1. Ambientes com custo de falso negativo diferente exigem recalibração.
+4. **Threshold dinâmico:** O threshold é calculado via F2-score na curva PR a cada treino. Ambientes com custo de falso negativo muito diferente do padrão bancário podem requerer ajuste do beta do F-score.
 5. **Cold start:** Novos padrões de fraude não presentes no treino não serão detectados inicialmente.
 
 ---
@@ -149,7 +162,7 @@ Top features (SHAP médio no conjunto de teste):
 |---|---|---|---|
 | Data drift | PSI por feature | 24h | PSI > 0.20 = WARNING |
 | Prediction drift | Chi-squared | 24h | p-value < 0.05 |
-| Performance degradation | AUC em labeled subset | Semanal | Delta AUC < -0.02 = RETRAIN |
+| Performance degradation | PR-AUC + AUC em labeled subset | Semanal | Delta PR-AUC < -0.02 = RETRAIN |
 | Feature availability | Completude de features | A cada batch | < 95% = ALERTA |
 
 ---

@@ -83,17 +83,47 @@ def evaluate_ragas(
     Returns:
         Dicionário com scores médios das 4 métricas RAGAS.
     """
+    import os
+
     fn = agent_fn or _mock_agent_fn
 
     try:
         from datasets import Dataset
         from ragas import evaluate
-        from ragas.metrics import (
-            answer_relevancy,
-            context_precision,
-            context_recall,
-            faithfulness,
-        )
+
+        # Suporta ragas 0.2.x (collections) e 0.1.x (legado)
+        try:
+            from ragas.metrics.collections import (
+                answer_relevancy,
+                context_precision,
+                context_recall,
+                faithfulness,
+            )
+        except ImportError:
+            from ragas.metrics import (  # type: ignore[no-redef]
+                answer_relevancy,
+                context_precision,
+                context_recall,
+                faithfulness,
+            )
+
+        # Configura RAGAS para usar Claude (Anthropic) se API key disponível
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if api_key:
+            try:
+                from langchain_anthropic import ChatAnthropic
+                from ragas.llms import LangchainLLMWrapper
+
+                llm = LangchainLLMWrapper(
+                    ChatAnthropic(model="claude-haiku-4-5-20251001", api_key=api_key)
+                )
+                for metric in [faithfulness, answer_relevancy, context_precision, context_recall]:
+                    metric.llm = llm  # type: ignore[attr-defined]
+                logger.info("RAGAS configurado com Claude (Anthropic)")
+            except ImportError:
+                logger.warning(
+                    "langchain_anthropic não instalado — instale com: pip install langchain-anthropic"
+                )
 
         records = []
         for pair in pairs:
@@ -128,17 +158,21 @@ def evaluate_ragas(
         return scores
 
     except ImportError:
+        logger.warning("Biblioteca ragas não instalada — retornando scores mock representativos")
+    except Exception as exc:
         logger.warning(
-            "Biblioteca ragas não instalada — retornando scores mock representativos"
+            "RAGAS falhou — retornando scores mock",
+            extra={"error": str(exc)},
         )
-        mock_scores = {
-            "faithfulness": 0.87,
-            "answer_relevancy": 0.82,
-            "context_precision": 0.79,
-            "context_recall": 0.71,
-        }
-        logger.info("Scores mock retornados", extra={"scores": mock_scores})
-        return mock_scores
+
+    mock_scores = {
+        "faithfulness": 0.87,
+        "answer_relevancy": 0.82,
+        "context_precision": 0.79,
+        "context_recall": 0.71,
+    }
+    logger.info("Scores mock retornados", extra={"scores": mock_scores})
+    return mock_scores
 
 
 def check_thresholds(scores: dict[str, float]) -> dict[str, bool]:

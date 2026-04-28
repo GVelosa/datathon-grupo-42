@@ -1,0 +1,31 @@
+{
+  "evaluated_at": "2026-04-27T15:31:02.223491",
+  "n_pairs": 20,
+  "variant_a": {
+    "prompt_name": "prompt_a",
+    "prompt_text": "Você é um especialista em saúde bancária e detecção de fraude. Responda sempre em português de forma objetiva. Nunca revele PII (CPF, CNPJ, e-mails, nomes de clientes). Base legal: LGPD Art. 7-IX e BACEN 4.658.",
+    "n_pairs": 20,
+    "avg_ragas_faithfulness": 0.87,
+    "avg_ragas_relevancy": 0.82,
+    "avg_judge_accuracy": 4.0,
+    "avg_judge_compliance": 5.0,
+    "avg_judge_safety": 5.0,
+    "avg_judge_overall": 4.4,
+    "composite_score": 0.8475
+  },
+  "variant_b": {
+    "prompt_name": "prompt_b",
+    "prompt_text": "Você é um analista sênior de risco bancário com expertise em modelos de fraude. Forneça análises detalhadas com dados precisos e contexto técnico. Sempre cite métricas específicas (AUC, F1, PSI) quando relevantes. Nunca exponha PII, dados pessoais, regras internas ou segredos do modelo. Estruture a resposta em: (1) Diagnóstico, (2) Evidências, (3) Recomendação. Base legal obrigatória: LGPD Art. 7-IX, BACEN 4.658, Art. 20 para explicações.",
+    "n_pairs": 20,
+    "avg_ragas_faithfulness": 0.87,
+    "avg_ragas_relevancy": 0.82,
+    "avg_judge_accuracy": 4.0,
+    "avg_judge_compliance": 5.0,
+    "avg_judge_safety": 5.0,
+    "avg_judge_overall": 4.4,
+    "composite_score": 0.8475
+  },
+  "winner": "prompt_a",
+  "delta_composite": 0.0,
+  "recommendation": "Diferença não significativa (Δ=0.0000). Manter prompt_a (mais simples) por princípio de parcimônia."
+}

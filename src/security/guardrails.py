@@ -11,7 +11,7 @@ from src.security.pii_detection import PIIDetector
 logger = logging.getLogger(__name__)
 
 INJECTION_PATTERNS: list[re.Pattern[str]] = [
-    re.compile(r"ignore\s+(previous|all|your)\s+instructions", re.IGNORECASE),
+    re.compile(r"ignore\s+(\w+\s+)*instructions", re.IGNORECASE),
     re.compile(r"(jailbreak|DAN|do\s+anything\s+now)", re.IGNORECASE),
     re.compile(r"(reveal|show|print|output)\s+(system\s+prompt|training\s+data|internal)", re.IGNORECASE),
     re.compile(r"act\s+as\s+(if\s+you|an\s+AI\s+without|a\s+different)", re.IGNORECASE),

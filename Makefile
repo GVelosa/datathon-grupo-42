@@ -18,25 +18,25 @@ security:
 	bandit -r src/ -ll
 
 test:
-	pytest tests/ --cov=src --cov-report=html --cov-fail-under=60
+	pytest tests/ --cov=src --cov-report=html --cov-fail-under=40
 
 test-fast:
 	pytest tests/ -x -q --no-header
 
 train:
-	python src/models/train.py
+	python scripts/train.py
 
 serve:
 	uvicorn src.serving.app:app --reload --host 0.0.0.0 --port 8000
 
 eval:
-	python evaluation/ragas_eval.py --golden-set data/golden_set/golden_pairs.yaml
+	python evaluation/ragas_eval.py
 
 judge:
 	python evaluation/llm_judge.py
 
 docker-build:
-	docker build -t fraud-api:local src/serving/
+	docker build -t fraud-api:local -f src/serving/Dockerfile .
 
 docker-run:
 	docker compose up

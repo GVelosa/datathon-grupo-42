@@ -31,8 +31,12 @@ prediction_drift:
 
 # ── Model Performance ──────────────────────────────────────────────────────────
 performance:
-  min_auc_delta: -0.02          # delta_AUC < -0.02 = dispara retreinamento
-  min_auc_absolute: 0.92        # AUC < 0.92 = CRITICAL independente do delta
+  primary_metric: average_precision        # PR-AUC como métrica primária
+  min_pr_auc_delta: -0.02                  # delta_PR-AUC < -0.02 = dispara retreinamento
+  min_pr_auc_absolute: 0.78               # PR-AUC < 0.78 = CRITICAL
+  min_auc_delta: -0.02                     # delta_AUC-ROC < -0.02 (métrica secundária)
+  min_auc_absolute: 0.92                   # AUC-ROC < 0.92 = CRITICAL (mantido para backward compat)
+  min_f2_score: 0.80                       # F2-score < 0.80 = WARNING
   labeled_subset_size: 1000
   check_frequency_days: 7
 
@@ -86,11 +90,17 @@ prometheus:
 
 # ── Alert Rules ────────────────────────────────────────────────────────────────
 alert_rules:
+  - name: ModelPRAUCLow
+    condition: model_pr_auc_current < 0.78
+    severity: CRITICAL
+    message: "PR-AUC do modelo abaixo de 0.78 — retreinamento necessário"
+    action: trigger_retrain
+
   - name: ModelAUCLow
     condition: model_auc_current < 0.92
-    severity: CRITICAL
-    message: "AUC do modelo abaixo de 0.92 — retreinamento necessário"
-    action: trigger_retrain
+    severity: WARNING
+    message: "AUC-ROC abaixo de 0.92 — monitorar PR-AUC e F2-score"
+    action: notify_team
 
   - name: DriftCritical
     condition: drift_psi_score > 0.25

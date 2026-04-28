@@ -337,6 +337,11 @@ def _write_markdown_report(report: ABTestReport, path: Path) -> None:
 
 
 if __name__ == "__main__":
+    import sys
+    from pathlib import Path as _Path
+
+    sys.path.insert(0, str(_Path(__file__).parent.parent))
+
     from evaluation.ragas_eval import load_golden_pairs
 
     logging.basicConfig(

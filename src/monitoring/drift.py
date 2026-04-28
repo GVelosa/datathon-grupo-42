@@ -214,19 +214,23 @@ def check_all_features(
         psi_by_feature[feature] = round(psi, 4)
 
         if psi >= PSI_THRESHOLD_CRITICAL:
-            alerts.append(DriftAlert(
-                feature=feature,
-                psi_score=psi,
-                severity="CRITICAL",
-                threshold=PSI_THRESHOLD_CRITICAL,
-            ))
+            alerts.append(
+                DriftAlert(
+                    feature=feature,
+                    psi_score=psi,
+                    severity="CRITICAL",
+                    threshold=PSI_THRESHOLD_CRITICAL,
+                )
+            )
         elif psi >= PSI_THRESHOLD_WARNING:
-            alerts.append(DriftAlert(
-                feature=feature,
-                psi_score=psi,
-                severity="WARNING",
-                threshold=PSI_THRESHOLD_WARNING,
-            ))
+            alerts.append(
+                DriftAlert(
+                    feature=feature,
+                    psi_score=psi,
+                    severity="WARNING",
+                    threshold=PSI_THRESHOLD_WARNING,
+                )
+            )
 
     has_drift = len(alerts) > 0
     has_critical = any(a["severity"] == "CRITICAL" for a in alerts)

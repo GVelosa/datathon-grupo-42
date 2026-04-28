@@ -14,11 +14,13 @@ def sample_transactions_df() -> pd.DataFrame:
     """DataFrame sintético de transações com 200 registros e distribuição realista."""
     n = 200
     rng = np.random.default_rng(42)
-    df = pd.DataFrame({
-        "Time": rng.uniform(0, 172800, n),
-        "Amount": rng.exponential(88, n),
-        "Class": np.where(rng.random(n) < 0.02, 1, 0),
-    })
+    df = pd.DataFrame(
+        {
+            "Time": rng.uniform(0, 172800, n),
+            "Amount": rng.exponential(88, n),
+            "Class": np.where(rng.random(n) < 0.08, 1, 0),
+        }
+    )
     for i in range(1, 29):
         df[f"V{i}"] = rng.normal(0, 1, n)
     return df

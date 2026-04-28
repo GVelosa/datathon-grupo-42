@@ -37,6 +37,7 @@ class PIIDetector:
         if use_ner:
             try:
                 import spacy
+
                 self._nlp = spacy.load("pt_core_news_sm")
                 logger.info("spaCy NER carregado para detecção de nomes")
             except (ImportError, OSError):

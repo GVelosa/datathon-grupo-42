@@ -1,24 +1,8 @@
 stages:
-  prepare:
-    cmd: >
-      echo "Baixe o dataset do Kaggle e salve em data/raw/creditcard.csv" &&
-      echo "Comando: kaggle datasets download -d mlg-ulb/creditcardfraud -p data/raw/ --unzip"
-    deps:
-      - data/raw/
-    outs:
-      - data/raw/creditcard.csv:
-          cache: true
-
   featurize:
-    cmd: >
-      python -c "
-      from src.features.feature_engineering import load_raw, compute_features, upsert_feature_store;
-      df = load_raw('data/raw/creditcard.csv');
-      features = compute_features(df);
-      n = upsert_feature_store(features, 'data/processed/features.parquet');
-      print(f'Upsert concluido: {n} registros')
-      "
+    cmd: python scripts/featurize.py
     deps:
+      - scripts/featurize.py
       - src/features/feature_engineering.py
       - data/raw/creditcard.csv
     outs:
@@ -29,8 +13,9 @@ stages:
           - feature_engineering
 
   train:
-    cmd: python src/models/train.py
+    cmd: python scripts/train.py
     deps:
+      - scripts/train.py
       - src/models/train.py
       - src/models/baseline.py
       - src/features/feature_engineering.py
@@ -46,19 +31,7 @@ stages:
           - training
 
   evaluate:
-    cmd: >
-      python -c "
-      import json;
-      from pathlib import Path;
-      metrics = json.loads(Path('data/processed/eval_metrics.json').read_text());
-      best = metrics.get('best_auc_roc', 0);
-      gate = metrics.get('promotion_gate', 0.005);
-      print(f'Best AUC-ROC: {best:.4f}');
-      print(f'Gate de promocao: delta_AUC >= {gate}');
-      print('Status: PROMOVER' if best > 0.9 else 'Status: REVISAR')
-      "
+    cmd: python scripts/evaluate.py
     deps:
+      - scripts/evaluate.py
       - data/processed/eval_metrics.json
-    metrics:
-      - data/processed/eval_metrics.json:
-          cache: false

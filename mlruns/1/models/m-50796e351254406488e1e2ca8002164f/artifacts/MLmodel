@@ -1,0 +1,23 @@
+artifact_path: file:///C:/Users/gusta/OneDrive/Documentos/python-projects/Git-Projects/datathon-grupo-42/mlruns/1/models/m-50796e351254406488e1e2ca8002164f/artifacts
+flavors:
+  python_function:
+    config:
+      device: null
+    data: data
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.pytorch
+    pickle_module_name: mlflow.pytorch.pickle_module
+    python_version: 3.12.4
+  pytorch:
+    code: null
+    model_data: data
+    pytorch_version: 2.11.0+cpu
+mlflow_version: 3.11.1
+model_id: m-50796e351254406488e1e2ca8002164f
+model_size_bytes: 64589
+model_uuid: m-50796e351254406488e1e2ca8002164f
+prompts: null
+run_id: 4e50a968e90a41dd978f949245470dff
+utc_time_created: '2026-04-26 20:53:05.542261'

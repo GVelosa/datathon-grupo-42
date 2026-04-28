@@ -1,0 +1,435 @@
+{
+  "evaluated_at": "2026-04-27T15:28:04.421372",
+  "judge_model": "claude-haiku-4-5-20251001",
+  "n_pairs": 20,
+  "avg_overall_score": 4.4,
+  "avg_scores_by_criterion": {
+    "accuracy": 4.0,
+    "compliance": 5.0,
+    "explainability": 4.0,
+    "safety": 5.0,
+    "actionability": 4.0
+  },
+  "results": [
+    {
+      "id": "GS-001",
+      "category": "metricas",
+      "query_preview": "Qual o AUC-ROC atual do modelo de fraude?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-002",
+      "category": "metricas",
+      "query_preview": "Qual o F1-score do modelo e o que ele representa?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-003",
+      "category": "metricas",
+      "query_preview": "Quantas transações foram bloqueadas nas últimas 24 horas?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-004",
+      "category": "metricas",
+      "query_preview": "O que é o KS-Statistic e qual o valor atual do modelo?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-005",
+      "category": "metricas",
+      "query_preview": "Qual o threshold de decisão do modelo e por que não é 0.5?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-006",
+      "category": "monitoramento",
+      "query_preview": "Houve drift nos dados nas últimas 24h?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-007",
+      "category": "monitoramento",
+      "query_preview": "O que acontece quando o PSI de uma feature ultrapassa 0.25?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-008",
+      "category": "monitoramento",
+      "query_preview": "Com que frequência o modelo é reavaliado em produção?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-009",
+      "category": "monitoramento",
+      "query_preview": "Quais métricas estão disponíveis no dashboard Prometheus?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-010",
+      "category": "fraude",
+      "query_preview": "Por que a transação TX-9821 foi bloqueada?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-011",
+      "category": "fraude",
+      "query_preview": "Quais são os sinais mais comuns de uma transação fraudulenta?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-012",
+      "category": "fraude",
+      "query_preview": "Como o modelo lida com o desbalanceamento de 577 legítimas para 1 fraude?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-013",
+      "category": "fraude",
+      "query_preview": "O que é um falso positivo no contexto de detecção de fraude e qual o impacto no ",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-014",
+      "category": "lgpd",
+      "query_preview": "Quais são as bases legais para processamento de dados de transações?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-015",
+      "category": "lgpd",
+      "query_preview": "Como o cliente pode contestar uma decisão de bloqueio?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-016",
+      "category": "lgpd",
+      "query_preview": "Os dados de transações podem ser usados para treinamento de outros modelos?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-017",
+      "category": "features",
+      "query_preview": "O que representa a feature V14 e por que ela é a mais importante?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-018",
+      "category": "features",
+      "query_preview": "Por que o feature log_amount é usado em vez de Amount diretamente?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-019",
+      "category": "features",
+      "query_preview": "Como a feature is_night é calculada e qual sua relevância?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    },
+    {
+      "id": "GS-020",
+      "category": "features",
+      "query_preview": "Quantas features o modelo usa e como elas foram selecionadas?",
+      "scores": {
+        "accuracy": 4,
+        "compliance": 5,
+        "explainability": 4,
+        "safety": 5,
+        "actionability": 4
+      },
+      "justifications": {
+        "accuracy": "Mock: avaliação simulada para desenvolvimento.",
+        "compliance": "Mock: conformidade LGPD verificada.",
+        "explainability": "Mock: avaliação simulada para desenvolvimento.",
+        "safety": "Mock: sem PII detectado.",
+        "actionability": "Mock: avaliação simulada para desenvolvimento."
+      },
+      "overall_score": 4.4,
+      "overall_justification": "Mock: avaliação simulada. Execute com ANTHROPIC_API_KEY."
+    }
+  ]
+}
