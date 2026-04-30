@@ -191,6 +191,14 @@ cython_debug/
 # Ruff stuff:
 .ruff_cache/
 
+# MLflow — tracking DB and experiment runs (artefatos gerados localmente)
+mlflow.db
+mlruns/
+
+# Relatórios gerados por CI / avaliação
+bandit-report.json
+ragas_report.json
+
 # PyPI configuration file
 .pypirc
 
