@@ -610,37 +610,74 @@ Artefatos gerados: `bandit-report.json`, `coverage.xml`, `ragas_report.json`.
 
 ## 10. Stack Completa com Docker
 
-### 10.1 Iniciar Todos os Serviços
+### 10.1 Pré-requisitos em PC Novo
 
-> **Pré-requisito em PC novo:** o arquivo `.env` não está no repositório (contém segredos). Crie-o antes de subir a stack:
->
-> ```powershell
-> # Windows PowerShell
-> Copy-Item .env.example .env
-> # Abra o .env e preencha: ANTHROPIC_API_KEY=sk-ant-...
-> notepad .env
-> ```
->
-> ```bash
-> # Linux / Mac
-> cp .env.example .env && nano .env
-> ```
+Execute estas etapas **uma única vez** antes de subir a stack. Depois disso, tudo roda com `docker compose up -d`.
+
+**Passo A — Criar o `.env`**
 
 ```powershell
-# Subir stack completa (API + MLflow + Prometheus + Grafana)
+# Windows PowerShell
+Copy-Item .env.example .env
+notepad .env   # preencha: ANTHROPIC_API_KEY=sk-ant-...
+```
+
+```bash
+# Linux / Mac
+cp .env.example .env && nano .env
+```
+
+> O `.env.example` já vem com `MLFLOW_TRACKING_URI=http://localhost:5000` — deixe assim. O treino vai logar direto no MLflow do Docker.
+
+**Passo B — Obter o dataset**
+
+O `creditcard.csv` (~144 MB) não está no repositório. Baixe antes de treinar:
+
+```powershell
+# Opção 1: Kaggle CLI
+pip install kaggle
+kaggle datasets download -d mlg-ulb/creditcardfraud -p data/raw/ --unzip
+
+# Opção 2: Download manual
+# https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud
+# → salvar em: data/raw/creditcard.csv
+```
+
+**Passo C — Subir a stack e treinar**
+
+```powershell
+# 1. Subir stack completa (API + MLflow + Prometheus + Grafana)
 docker compose up -d
 
+# 2. Instalar dependências (apenas na primeira vez)
+pip install -e ".[dev,eval,monitoring]"
+
+# 3. Treinar modelos — loga diretamente no MLflow do Docker
+python scripts/train.py
+# Após concluir: abra http://localhost:5000 → experimentos aparecem automaticamente
+```
+
+> **Por que treinar depois de subir o Docker?**
+> O `.env` aponta `MLFLOW_TRACKING_URI=http://localhost:5000`.
+> O treino local envia os experimentos para o servidor MLflow do container — sem bind mounts, sem configuração extra.
+
+### 10.2 Comandos do Docker
+
+```powershell
 # Acompanhar logs da API em tempo real
 docker compose logs -f fraud-api
 
 # Verificar status de todos os containers
 docker compose ps
 
-# Parar tudo
+# Parar tudo (preserva volumes com experimentos MLflow)
 docker compose down
+
+# Parar e apagar volumes (reset completo)
+docker compose down -v
 ```
 
-### 10.2 URLs dos Serviços
+### 10.3 URLs dos Serviços
 
 | Serviço | URL | Credenciais |
 |---|---|---|
@@ -649,16 +686,19 @@ docker compose down
 | Prometheus | http://localhost:9090 | — |
 | Grafana | http://localhost:3000 | admin / datathon42 |
 
-### 10.3 Configurar Grafana
+### 10.4 Grafana
+
+O datasource Prometheus é **configurado automaticamente** ao subir a stack (via `configs/grafana/provisioning/`). Não é necessário nenhuma configuração manual.
 
 1. Acesse http://localhost:3000 (admin / datathon42)
-2. Adicione datasource: **Prometheus** → URL `http://prometheus:9090`
-3. Importe dashboard ou crie panels para:
-   - `request_latency_seconds` (histograma P50/P95/P99)
-   - `model_auc_current` (gauge)
-   - `drift_psi_score` (time series por feature)
-   - `fraud_rate_rolling_1h` (gauge)
-   - `guardrail_blocks_total` (rate)
+2. Vá em **Dashboards → New → Add visualization**
+3. O datasource **Prometheus** já aparece selecionado
+4. Métricas disponíveis para criar panels:
+   - `request_latency_seconds` — latência P50/P95/P99
+   - `model_auc_current` — AUC do modelo em produção
+   - `drift_psi_score` — PSI por feature
+   - `fraud_rate_rolling_1h` — taxa de fraude
+   - `guardrail_blocks_total` — bloqueios por guardrail
 
 ---
 
