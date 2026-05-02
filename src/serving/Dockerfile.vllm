@@ -1,0 +1,57 @@
+# Dockerfile — vLLM OpenAI-compatible server com quantização configurável
+#
+# Etapa 2 — LLM Serving (Datathon Fase 5)
+# Referência: https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html
+#
+# Uso:
+#   docker build -f src/serving/Dockerfile.vllm -t datathon42/vllm .
+#
+# Variáveis de ambiente obrigatórias no runtime:
+#   VLLM_MODEL         Modelo HuggingFace (ex: meta-llama/Meta-Llama-3.1-8B-Instruct)
+#   HF_TOKEN           Token HuggingFace para modelos com gate (Llama exige)
+#
+# Variáveis opcionais:
+#   VLLM_QUANTIZATION  awq | int8 | fp16  (padrão: awq)
+#   VLLM_PORT          Porta de serving      (padrão: 8080)
+#   VLLM_MAX_MODEL_LEN Contexto máximo       (padrão: 4096)
+#   VLLM_GPU_MEM_UTIL  Fração VRAM 0.0–1.0  (padrão: 0.90)
+#   VLLM_DTYPE         Tipo de dado          (padrão: auto)
+
+FROM vllm/vllm-openai:latest
+
+# Metadados
+LABEL maintainer="Datathon Grupo 42 — FIAP MLET Pós-Tech"
+LABEL description="vLLM server para LLM local com quantização (Etapa 2)"
+LABEL version="1.0.0"
+
+# Instala python-dotenv para ler .env caso necessário
+RUN pip install --no-cache-dir python-dotenv
+
+# Diretório de cache HuggingFace (montado como volume em produção)
+RUN mkdir -p /root/.cache/huggingface
+
+# Copia o script de configuração para uso dentro do container
+COPY src/serving/vllm_server.py /app/vllm_server.py
+
+# Porta padrão de serving
+EXPOSE 8080
+
+# Script de entrypoint: lê env vars e monta os args do vLLM
+# O entrypoint nativo do vllm/vllm-openai:latest é:
+#   python -m vllm.entrypoints.openai.api_server
+# Passamos os args via CMD para permitir override no docker-compose
+
+# Configuração mínima via env vars com defaults seguros
+ENV VLLM_MODEL="meta-llama/Meta-Llama-3.1-8B-Instruct" \
+    VLLM_QUANTIZATION="awq" \
+    VLLM_PORT="8080" \
+    VLLM_MAX_MODEL_LEN="4096" \
+    VLLM_GPU_MEM_UTIL="0.90" \
+    VLLM_DTYPE="auto" \
+    VLLM_TENSOR_PARALLEL="1"
+
+# Entrypoint customizado que lê env vars e executa o servidor
+COPY src/serving/vllm_entrypoint.sh /app/vllm_entrypoint.sh
+RUN chmod +x /app/vllm_entrypoint.sh
+
+ENTRYPOINT ["/app/vllm_entrypoint.sh"]
