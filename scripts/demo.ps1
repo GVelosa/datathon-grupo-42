@@ -1,4 +1,4 @@
-# scripts/demo.ps1 — Demo completo do Datathon Grupo 42 (Windows PowerShell)
+﻿# scripts/demo.ps1 — Demo completo do Datathon Grupo 42 (Windows PowerShell)
 #
 # Executa TUDO de uma vez:
 #   1. Verifica .env e dataset
@@ -20,6 +20,7 @@
 param(
     [switch]$SkipTrain,
     [switch]$SkipTests,
+    [switch]$SkipInstall,
     [switch]$GPU
 )
 
@@ -35,6 +36,12 @@ function Write-Warn($msg) { Write-Host "    AVISO: $msg" -ForegroundColor Yellow
 function Write-Fail($msg) { Write-Host "    ERRO: $msg" -ForegroundColor Red }
 
 $TOTAL_STEPS = if ($SkipTrain) { 7 } else { 8 }
+
+# Garante que Docker esteja no PATH (Docker Desktop pode nao atualizar sessoes abertas)
+$dockerBin = "C:\Program Files\Docker\Docker\resources\bin"
+if ((Test-Path $dockerBin) -and ($env:PATH -notlike "*$dockerBin*")) {
+    $env:PATH += ";$dockerBin"
+}
 
 Write-Host ""
 Write-Host "=================================================" -ForegroundColor Magenta
@@ -96,11 +103,16 @@ if (-not (Test-Path "data/raw/creditcard.csv")) {
 }
 
 # ── Passo 3: Instalar dependências ─────────────────────────────────────────
-Write-Step 3 $TOTAL_STEPS "Python — instalando dependências"
+if (-not $SkipInstall) {
+    Write-Step 3 $TOTAL_STEPS "Python — instalando dependências"
 
-pip install -e ".[dev,eval,monitoring]" -q
-if ($LASTEXITCODE -ne 0) { Write-Fail "pip install falhou"; exit 1 }
-Write-OK "Dependências instaladas"
+    pip install -e ".[dev,eval,monitoring]" -q
+    if ($LASTEXITCODE -ne 0) { Write-Fail "pip install falhou"; exit 1 }
+    Write-OK "Dependências instaladas"
+} else {
+    Write-Step 3 $TOTAL_STEPS "Python — pulando instalacao (-SkipInstall)"
+    Write-OK "Dependencias ja instaladas"
+}
 
 # ── Passo 4: Subir Docker ──────────────────────────────────────────────────
 Write-Step 4 $TOTAL_STEPS "Docker — subindo serviços (MLflow + Prometheus + Grafana)"
