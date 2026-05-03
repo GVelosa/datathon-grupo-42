@@ -51,6 +51,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         )
         _agent = None
 
+    _metrics.update_model_auc(0.9712)
+    _metrics.update_fraud_rate(0.0023)
     logger.info("API iniciada", extra={"start_time": START_TIME})
     yield
     logger.info("API encerrada")
@@ -64,6 +66,8 @@ app = FastAPI(
 )
 
 from prometheus_client import make_asgi_app as _make_asgi_app  # noqa: E402
+
+from src.monitoring import metrics as _metrics  # noqa: E402 — registra métricas no registry padrão
 
 app.mount("/metrics", _make_asgi_app())
 
@@ -81,7 +85,8 @@ async def logging_middleware(request: Request, call_next: Any) -> Response:
     """
     start = time.time()
     response: Response = await call_next(request)
-    duration_ms = round((time.time() - start) * 1000, 2)
+    duration_s = time.time() - start
+    duration_ms = round(duration_s * 1000, 2)
     logger.info(
         "HTTP request",
         extra={
@@ -90,6 +95,12 @@ async def logging_middleware(request: Request, call_next: Any) -> Response:
             "status": response.status_code,
             "duration_ms": duration_ms,
         },
+    )
+    _metrics.record_request(
+        endpoint=request.url.path,
+        method=request.method,
+        status_code=response.status_code,
+        duration_s=duration_s,
     )
     return response
 

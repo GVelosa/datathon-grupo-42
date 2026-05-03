@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir --prefix=/install \
     faiss-cpu \
     scikit-learn \
     torch \
-    mlflow \
+    "mlflow==3.11.1" \
     prometheus-client \
     pyyaml \
     pandas \

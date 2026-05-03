@@ -456,6 +456,9 @@ def evaluate_champion_challenger(
 
 if __name__ == "__main__":
     import yaml
+    from dotenv import load_dotenv
+
+    load_dotenv()  # carrega .env da raiz para garantir MLFLOW_TRACKING_URI, etc.
 
     from src.features.feature_engineering import compute_features, load_raw, upsert_feature_store
 
